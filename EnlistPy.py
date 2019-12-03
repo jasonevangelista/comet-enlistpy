@@ -60,7 +60,7 @@ class User():
         self.id_no = id_no
 
     def getFirstName(self):
-        return first_name
+        return self.first_name
 
 class Student(User):
     degree = ""
@@ -91,9 +91,6 @@ class Student(User):
         print("Current Courses:")
         for course in current_courses:
             print(course.getCourseCode())
-
-
-
 
 
 class Admin(User):
@@ -161,7 +158,7 @@ def log_in():
             correct_password = True
             print("Successfully logged in!")
 
-    if lines[3] == "student":
+    if lines[2] == "student":
         f = open("students.txt","r")
         f1 = f.readlines()
         for line in f1:
@@ -192,11 +189,13 @@ def log_in():
         last_name = data[2]
 
         user = Admin(id_no, first_name, last_name)
-    
+
     return user
-    
+
     
 def sign_up():
+    user = ""
+
     print("Enter First Name: ", end="")
     first_name = input()
     print("Enter Last Name: ", end="")
@@ -257,12 +256,17 @@ def sign_up():
 
         f.close()
 
+# id_no, first name, last name, degree, courses taken, current units, current courses
+        user = Student(id_no, first_name, last_name, degree, prev_courses, "0", [])
+
     else:
         f = open("admins.txt","a+")
 
         f.write("\n" + id_no + ", " + first_name + ", " + last_name)
     
         f.close()
+
+        user = Admin(id_no, first_name, last_name)
     
     # add user data to user
     f = open("users.txt","a+")
@@ -272,6 +276,8 @@ def sign_up():
     else:
         f.write("admin")
     f.close()
+
+    return user
 
     
 def main():
@@ -289,11 +295,11 @@ def main():
             
             print("Hello, " + user.getFirstName() + ".\nWhat would you like to do?")
 
-            if user is student:
+            if type(user) is Student:
                 print("1 - Add Course")
                 print("2 - Drop Course")
                 print("3 - View Student Information")
-            else:
+            elif type(user) is Admin:
                 print("1 - View All Courses")
                 print("2 - Create Course")
                 print("3 - Remove Course")
