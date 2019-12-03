@@ -54,10 +54,13 @@ class User():
     last_name = ""
     id_no = ""
     
-    def __init__(self, first_name, last_name, id_no):
+    def __init__(self, id_no, first_name, last_name):
         self.first_name = first_name
         self.last_name = last_name
         self.id_no = id_no
+
+    def getFirstName(self):
+        return first_name
 
 class Student(User):
     degree = ""
@@ -66,8 +69,8 @@ class Student(User):
     current_courses = []
     courses_taken = []
 
-    def __init__(self,first_name, last_name, id_no, degree, courses_taken, current_courses):
-        super(Student, self).__init__(first_name, last_name, id_no)
+    def __init__(self, id_no, first_name, last_name, degree, courses_taken, current_units, current_courses):
+        super(Student, self).__init__(id_no, first_name, last_name)
         self.courses_taken = courses_taken
         self.degree = degree
         self.current_courses = current_courses
@@ -95,8 +98,8 @@ class Student(User):
 
 class Admin(User):
 
-    def __init__(self, first_name, last_name, id_no, password):
-        super(Admin, self).__init__(first_name, last_name, id_no, password)
+    def __init__(self, id_no, first_name, last_name):
+        super(Admin, self).__init__(id_no, first_name, last_name)
 
     # def createCourse(self):
     
@@ -113,11 +116,12 @@ def start_menu():
 
     print("1 - LOG IN")
     print("2 - SIGN UP")
+    print("3 - EXIT PROGRAM")
 
     print("Input: ", end =" ")
     action = input()
 
-    while action != "1" and action != "2":
+    while action != "1" and action != "2" and action != "3":
         print("Invalid input!")
         print("Input: ", end =" ")
         action = input()
@@ -125,6 +129,7 @@ def start_menu():
     return action
 
 def log_in():
+    user = ""
     f = open("users.txt","r")
     f1 = f.readlines()
     id_num_found = False
@@ -156,7 +161,41 @@ def log_in():
             correct_password = True
             print("Successfully logged in!")
 
+    if lines[3] == "student":
+        f = open("students.txt","r")
+        f1 = f.readlines()
+        for line in f1:
+            data = line.rsplit(", ")
+            if data[0] == id_no:
+                break
+        f.close()
 
+        first_name = data[1]
+        last_name = data[2]
+        degree = data[3]
+        prev_courses_taken = data[4].split()
+        current_units = data[5]
+        current_courses = data[6].split()
+
+        user = Student(id_no, first_name, last_name, degree, courses_taken, current_units, current_courses)
+    
+    else:
+        f = open("admins.txt","r")
+        f1 = f.readlines()
+        for line in f1:
+            data = line.rsplit(", ")
+            if data[0] == id_no:
+                break
+        f.close()
+
+        first_name = data[1]
+        last_name = data[2]
+
+        user = Admin(id_no, first_name, last_name)
+    
+    return user
+    
+    
 def sign_up():
     print("Enter First Name: ", end="")
     first_name = input()
@@ -236,14 +275,32 @@ def sign_up():
 
     
 def main():
-    action = start_menu()
+    run = True
+    user = ""
 
-    if action == 1:
-        log_in()
+    while run == True:
+        action = start_menu()
 
-    else:
-        sign_up()
+        if action == "1" or action == "2":
+            if action == "1":
+                user = log_in()
+            else:
+                user = sign_up()
+            
+            print("Hello, " + user.getFirstName() + ".\nWhat would you like to do?")
+
+            if user is student:
+                print("1 - Add Course")
+                print("2 - Drop Course")
+                print("3 - View Student Information")
+            else:
+                print("1 - View All Courses")
+                print("2 - Create Course")
+                print("3 - Remove Course")
+        
+        else:
+            run = False
     
-
+    
 main()
 
