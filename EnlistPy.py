@@ -13,17 +13,40 @@ class Course():
 
     pre_requisites = []
 
-    def __init__(self, course_code, class_limit, units, pre_requisites):
+    def __init__(self, course_code, class_limit, units, time_start, time_end, pre_requisites):
         self.course_code = course_code
         self.class_limit = class_limit
         self.units = units
+        self.time_start = time_start
+        self.time_end = time_end
         self.pre_requisites = pre_requisites
-        self.current_students = 0
+        self.student_quantity = 0
+
+    def addStudent(self, student):
+        if self.student_quantity == class_limit:
+            print("Cannot enroll in course, capacity is full!")
+        else:
+            self.student_quantity += 1
+            self.current_students.append(student)
+            print("Successfully enrolled in course!")
+
+    def removeStudent(self, student):
+        self.student_quantity =- 1
+        self.current_students.remove(student)
+        print("Successfully removed from class")
     
     def getCourseCode(self):
         return self.course_code
 
-    def 
+    def displayCourseInfo(self):
+        print(self.course_code)
+        print("Units: " + self.units)
+        print(self.time_start + " - " + self.time_end)
+        print(self.student_quantity + " / " + self.class_limit)
+        print("Pre-requisites:")
+        for course in self.pre_requisites:
+            print(course.getCourseCode)
+
 
 
 class User():
@@ -46,8 +69,11 @@ class Student(User):
     current_courses = []
     courses_taken = []
 
-    def __init__(self, degree, courses_taken):
+    def __init__(self,first_name, last_name, id_no, password, degree, courses_taken, current_courses):
+        super(Student, self).__init__(first_name, last_name, id_no, password)
+        self.courses_taken = courses_taken
         self.degree = degree
+        self.current_courses = current_courses
         self.current_units = 0
 
     # def takeCourse(self, course):
@@ -70,14 +96,14 @@ class Student(User):
 
 
 
-# class Admin(User):
+class Admin(User):
 
-#     def __init__(self):
+    def __init__(self, first_name, last_name, id_no, password):
+        super(Admin, self).__init__(first_name, last_name, id_no, password)
 
-
-#     def createCourse(self):
+    # def createCourse(self):
     
-#     def removeCourse(self, course):
+    # def removeCourse(self, course):
 
 
 
