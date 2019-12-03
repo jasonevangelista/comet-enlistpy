@@ -1,0 +1,11 @@
+course code
+units
+time start
+time end
+class limit
+current quantity
+student list
+
+
+course code, num units, time start, time end, pre req, class limit, current quantity, student list
+

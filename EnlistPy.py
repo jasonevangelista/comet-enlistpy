@@ -53,14 +53,11 @@ class User():
     first_name = ""
     last_name = ""
     id_no = ""
-    password = ""
     
-    def __init__(self, first_name, last_name, id_no, password):
+    def __init__(self, first_name, last_name, id_no):
         self.first_name = first_name
         self.last_name = last_name
         self.id_no = id_no
-        self.password = password
-
 
 class Student(User):
     degree = ""
@@ -69,12 +66,12 @@ class Student(User):
     current_courses = []
     courses_taken = []
 
-    def __init__(self,first_name, last_name, id_no, password, degree, courses_taken, current_courses):
-        super(Student, self).__init__(first_name, last_name, id_no, password)
+    def __init__(self,first_name, last_name, id_no, degree, courses_taken, current_courses):
+        super(Student, self).__init__(first_name, last_name, id_no)
         self.courses_taken = courses_taken
         self.degree = degree
         self.current_courses = current_courses
-        self.current_units = 0
+        # self.current_units = 0
 
     # def takeCourse(self, course):
 
@@ -128,29 +125,63 @@ def start_menu():
     return action
 
 def log_in():
-    print("ID Number: ", end ="")
-    username = input()
+    f = open("users.txt","r")
+    f1 = f.readlines()
+    id_num_found = False
+    correct_password = False
 
-    print("Password: ", end ="")
-    password = input()
+    while id_num_found == False:
+        print("ID Number: ", end ="")
+        id_no = input()
 
-    # check text files for valid username and
-    # corresponding password
+        for line in f1:
+            lines = line.rsplit(", ")
+
+            if id_no == lines[0]:
+                id_num_found = True
+                break
+
+        if id_num_found == False:
+            print("Invalid ID number! Please try again")
+
+    f.close()
+
+    while correct_password == False:
+        print("Password: ", end ="")
+        password = input()
+
+        if password != lines[1]:
+            print("Invalid password! Please try again")
+        else:
+            correct_password = True
+            print("Successfully logged in!")
+
 
 def sign_up():
     print("Enter First Name: ", end="")
     first_name = input()
-
     print("Enter Last Name: ", end="")
     last_name = input()
 
-    print("Enter ID Number: ", end="")
-    id_no = input()
+    f = open("users.txt","r")
+    f1 = f.readlines()
+    valid_id_no = False
+
+    while valid_id_no == False:
+        valid_id_no = True
+        print("Enter ID Number: ", end ="")
+        id_no = input()
+
+        for line in f1:
+            lines = line.rsplit(", ")
+            if id_no == lines[0]:
+                print("ID Number already in use!")
+                valid_id_no = False
+                break
+    f.close()
 
     print("Enter Password: ", end="")
     password = input()
-
-    # check if id number is not in database
 
     print("Type of user:")
     print("1 - Student")
@@ -167,7 +198,7 @@ def sign_up():
         print("Enter degree: ", end="")
         degree = input()
 
-        courses = []
+        prev_courses = []
         courseInput = ""
 
         print("Input the course codes of courses that you've previously taken:")
@@ -175,22 +206,44 @@ def sign_up():
         while courseInput != "None":
             courseInput = input()
             if courseInput != "None":
-                courses.append(courseInput)
+                prev_courses.append(courseInput)
 
-        # instantiate new student class
+        # id_no, first name, last name, degree, courses taken, current units, current courses
+        f = open("students.txt","a+")
 
-    # else:
+        f.write("\n" + id_no + ", " + first_name + ", " + last_name + ", " + degree + ", ")
+        for course in prev_courses:
+            f.write(course + " ")
+        f.write(", 0, ")
 
-        # instantiate new admin class
+        f.close()
+
+    else:
+        f = open("admins.txt","a+")
+
+        f.write("\n" + id_no + ", " + first_name + ", " + last_name)
+    
+        f.close()
+    
+    # add user data to user
+    f = open("users.txt","a+")
+    f.write("\n" + id_no + ", " + password + ", ")
+    if user_type == "1":
+        f.write("student")
+    else:
+        f.write("admin")
+    f.close()
 
     
-# def start_program():
+def main():
+    action = start_menu()
 
+    if action == 1:
+        log_in()
 
-# Main
+    else:
+        sign_up()
+    
 
-# action = start_menu()
+main()
 
-# print(action)
-
-# start_program()
