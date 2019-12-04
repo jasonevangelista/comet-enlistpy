@@ -9,7 +9,7 @@ class Course():
 
     class_limit = ""
     student_quantity = ""
-    current_students = []
+    student_list = []
 
     pre_requisites = []
 
@@ -19,34 +19,37 @@ class Course():
         self.units = units
         self.pre_requisites = pre_requisites
         self.student_quantity = student_quantity
-        self.current_students = current_students
+        self.student_list = current_students
 
     def addStudent(self, student):
         self.student_quantity = int(self.student_quantity) + 1
-        self.current_students.append(student)
+        self.student_list.append(student.getIdNo())
 
     def removeStudent(self, student):
         self.student_quantity =- 1
-        self.current_students.remove(student)
+        self.student_list.remove(student)
         print("Successfully removed from class")
     
     def getCourseCode(self):
         return self.course_code
 
-    def getStudentQuantity(self):
-        return int(self.student_quantity)
-
-    def getClassLimit(self):
-        return int(self.class_limit)
-
-    def getCurrentStudents(self):
-        return self.student_quantity
+    def getUnits(self):
+        return int(self.units)
 
     def getPreReqs(self):
         return self.pre_requisites
 
-    def getUnits(self):
-        return int(self.units)
+    def getClassLimit(self):
+        return int(self.class_limit)
+
+    def getStudentQuantity(self):
+        return int(self.student_quantity)
+
+    def getStudentList(self):
+        return self.student_list
+
+
+    #course code, num units, pre req, class limit, current quantity, student list
 
 
     def displayCourseInfo(self):
@@ -72,6 +75,9 @@ class User():
     def getFirstName(self):
         return self.first_name
     
+    def getLastName(self):
+        return self.last_name
+    
     def getIdNo(self):
         return self.id_no
 
@@ -90,18 +96,23 @@ class Student(User):
         self.current_courses = current_courses
 
     def takeCourse(self, course):
-        self.current_courses.append(course)
+        self.current_courses.append(course.getCourseCode())
         self.current_units = int(self.current_units) + int(course.getUnits())
-        course.addStudent(self)
-
+        # course.addStudent(self)
 
     # def dropCourse(self, course):
+
+    def getDegree(self):
+        return self.degree
 
     def getPrevCoursesTaken(self):
         return self.courses_taken
 
     def getCurrentUnits(self):
         return int(self.current_units)
+
+    def getCurrentCourses(self):
+        return self.current_courses
 
 
     def display_info(self):
@@ -310,8 +321,6 @@ def getCourseDataFromFile():
 
         course_code = data[0]
         units = data[1]
-        # time_start = data[2]
-        # time_end = data[3]
         pre_reqs = data[2].rsplit()
         class_limit = data[3]
         current_quantity = data[4]
@@ -325,7 +334,7 @@ def getCourseDataFromFile():
 
 def isStudentInCourse(student, course):
     id_no = student.getIdNo()
-    student_list = course.getCurrentStudents()
+    student_list = course.getStudentList()
 
     studentIsInList = False
     for student_no in student_list:
@@ -366,11 +375,36 @@ def canStudentEnrollInCourse(student, course):
             print("Not enough pre-requisites!")
             return False
 
+def updateDataInFile(filename, old_line, new_line):
 
-# def updateCourseInFile():
+def lineFormatCourse(course):
+    #course code, num units, pre req, class limit, current quantity, student list
+    line = course.getCourseCode() + ", " + str(course.getUnits()) + ", "
 
+    for pre_req in course.getPreReqs():
+        line += pre_req + " "
+    
+    line += ", " + str(course.getClassLimit()) + ", " + str(course.getStudentQuantity()) + ", "
 
-# def updateStudentInFile():
+    for student_id in course.getStudentList():
+        line += student_id + " "
+
+    return line
+
+def lineFormatStudent(student):
+    # id_no, first name, last name, degree, prev courses taken, current units, current courses
+    line = student.getIdNo() + ", " + student.getFirstName() + ", " + student.getLastName() + ", " + student.getDegree() + ", "
+
+    for prev_course in student.getPrevCoursesTaken():
+        line += prev_course + " "
+    
+    line += ", " + str(student.getCurrentUnits()) + ", "
+
+    for curr_course in student.getCurrentCourses():
+        line += curr_course + " "
+    
+    return line
+
 
 
 def main():
@@ -410,9 +444,31 @@ def main():
 
                     else:
                         if canStudentEnrollInCourse(user, course) == True:
+                            old_course_line = lineFormatCourse(course)
+                            old_student_line = lineFormatStudent(user)
+
                             user.takeCourse(course)
+                            course.addStudent(user)
+
+                            new_course_line = lineFormatCourse(course)
+                            new_student_line = lineFormatStudent(user)
+
                             print("Successfully enrolled in " + course.getCourseCode())
-                            #end of action
+
+                            # print("old line: ")
+                            # print(old_course_line)
+                            # print(old_student_line)
+
+                            # print()
+
+                            # print("new line: ")
+                            # print(new_course_line)
+                            # print(new_student_line)
+
+                            updateDataInFile("courses.txt", old_course_line, new_course_line)
+                            updateDataInFile("students.txt", old_student_line, new_course_line)
+
+                            #end of action 1
     
 
                 elif action == "2":
