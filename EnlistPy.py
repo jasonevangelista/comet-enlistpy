@@ -1,3 +1,6 @@
+
+MAX_STUDENT_UNITS = 21
+
 # Classes
 
 class Course():
@@ -8,28 +11,19 @@ class Course():
     student_quantity = ""
     current_students = []
 
-    time_start = ""
-    time_end = ""
-
     pre_requisites = []
 
-    def __init__(self, course_code, class_limit, units, time_start, time_end, pre_requisites, student_quantity, current_students):
+    def __init__(self, course_code, class_limit, units, pre_requisites, student_quantity, current_students):
         self.course_code = course_code
         self.class_limit = class_limit
         self.units = units
-        self.time_start = time_start
-        self.time_end = time_end
         self.pre_requisites = pre_requisites
         self.student_quantity = student_quantity
         self.current_students = current_students
 
     def addStudent(self, student):
-        if self.student_quantity == class_limit:
-            print("Cannot enroll in course, capacity is full!")
-        else:
-            self.student_quantity += 1
-            self.current_students.append(student)
-            print("Successfully enrolled in course!")
+        self.student_quantity = int(self.student_quantity) + 1
+        self.current_students.append(student)
 
     def removeStudent(self, student):
         self.student_quantity =- 1
@@ -50,6 +44,9 @@ class Course():
 
     def getPreReqs(self):
         return self.pre_requisites
+
+    def getUnits(self):
+        return int(self.units)
 
 
     def displayCourseInfo(self):
@@ -82,24 +79,29 @@ class User():
 class Student(User):
     degree = ""
     current_units = ""
-    max_units = 21
     current_courses = []
     courses_taken = []
 
     def __init__(self, id_no, first_name, last_name, degree, courses_taken, current_units, current_courses):
         super(Student, self).__init__(id_no, first_name, last_name)
-        self.courses_taken = courses_taken
         self.degree = degree
+        self.courses_taken = courses_taken
+        self.current_units = int(current_units)
         self.current_courses = current_courses
-        # self.current_units = 0
 
-    # def takeCourse(self, course):
+    def takeCourse(self, course):
+        self.current_courses.append(course)
+        self.current_units = int(self.current_units) + int(course.getUnits())
+        course.addStudent(self)
 
 
     # def dropCourse(self, course):
 
     def getPrevCoursesTaken(self):
         return self.courses_taken
+
+    def getCurrentUnits(self):
+        return int(self.current_units)
 
 
     def display_info(self):
@@ -193,7 +195,7 @@ def log_in():
         current_units = data[5]
         current_courses = data[6].split()
 
-        user = Student(id_no, first_name, last_name, degree, courses_taken, current_units, current_courses)
+        user = Student(id_no, first_name, last_name, degree, prev_courses_taken, current_units, current_courses)
     
     else:
         f = open("admins.txt","r")
@@ -308,14 +310,14 @@ def getCourseDataFromFile():
 
         course_code = data[0]
         units = data[1]
-        time_start = data[2]
-        time_end = data[3]
-        pre_reqs = data[4].rsplit()
-        class_limit = data[5]
-        current_quantity = data[6]
-        student_list = data[7].rsplit()
+        # time_start = data[2]
+        # time_end = data[3]
+        pre_reqs = data[2].rsplit()
+        class_limit = data[3]
+        current_quantity = data[4]
+        student_list = data[5].rsplit()
         
-        courses.append(Course(course_code, class_limit, units, time_start, time_end, pre_reqs, current_quantity, student_list))   
+        courses.append(Course(course_code, class_limit, units, pre_reqs, current_quantity, student_list))   
         
     f.close()
 
@@ -337,13 +339,17 @@ def canStudentEnrollInCourse(student, course):
         print("Course is full!")
         return False
 
-    if isStudentInCourse(user, course):
+    elif isStudentInCourse(student, course):
         print("You are already enrolled here!")
         return False
 
+    elif student.getCurrentUnits() + course.getUnits() > MAX_STUDENT_UNITS:
+        print("Cannot add more units to user!")
+        return False
+
     else:
-        prev_courses = student.getPrevCoursesTaken
-        pre_reqs = course.getPreReqs
+        prev_courses = student.getPrevCoursesTaken()
+        pre_reqs = course.getPreReqs()
 
         canEnroll = False
         num = 0
@@ -357,6 +363,7 @@ def canStudentEnrollInCourse(student, course):
         if num == numPreReq:
             return True
         else:
+            print("Not enough pre-requisites!")
             return False
 
 
@@ -381,7 +388,7 @@ def main():
             else:
                 user = sign_up()
             
-            print("Hello, " + user.getFirstName() + ".\nWhat would you like to do?")
+            print("\nHello, " + user.getFirstName() + ".\nWhat would you like to do?")
 
             if type(user) is Student:
                 print("1 - Add Course")
@@ -404,7 +411,7 @@ def main():
                     else:
                         if canStudentEnrollInCourse(user, course) == True:
                             user.takeCourse(course)
-                            course.addStudent(user)
+                            print("Successfully enrolled in " + course.getCourseCode())
                             #end of action
     
 
@@ -431,10 +438,8 @@ def main():
 
                 # else:
 
-        
         else:
             run = False
     
     
 main()
-
