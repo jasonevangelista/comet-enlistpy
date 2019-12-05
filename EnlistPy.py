@@ -26,9 +26,8 @@ class Course():
         self.student_list.append(student.getIdNo())
 
     def removeStudent(self, student):
-        self.student_quantity =- 1
-        self.student_list.remove(student)
-        print("Successfully removed from class")
+        self.student_quantity = int(self.student_quantity) - 1
+        self.student_list.remove(student.getIdNo())
     
     def getCourseCode(self):
         return self.course_code
@@ -98,9 +97,11 @@ class Student(User):
     def takeCourse(self, course):
         self.current_courses.append(course.getCourseCode())
         self.current_units = int(self.current_units) + int(course.getUnits())
-        # course.addStudent(self)
 
-    # def dropCourse(self, course):
+    def dropCourse(self, course):
+        self.current_courses.remove(course.getCourseCode())
+        self.current_units = int(self.current_units) - int(course.getUnits())
+
 
     def getDegree(self):
         return self.degree
@@ -385,7 +386,7 @@ def updateDataInFile(filename, old_line, new_line):
     f.write(s)
     f.close()
 
-    print(s)
+    # print(s)
 
 def lineFormatCourse(course):
     #course code, num units, pre req, class limit, current quantity, student list
@@ -452,7 +453,7 @@ def main():
                         print("Course not found!")
 
                     else:
-                        if canStudentEnrollInCourse(user, course) == True:
+                        if canStudentEnrollInCourse(user, course):
                             old_course_line = lineFormatCourse(course)
                             old_student_line = lineFormatStudent(user)
 
@@ -471,6 +472,35 @@ def main():
 
                 elif action == "2":
                     course_to_drop = input("Enter Course Code: ")
+
+                    course_found = False
+                    for course in courses_data:
+                        if course.getCourseCode() == course_to_drop:
+                            course_found = True
+                            break
+                    
+                    if course_found == False:
+                        print("Course not found!")
+
+                    else:
+                        if isStudentInCourse(user, course) == True:
+                            old_course_line = lineFormatCourse(course)
+                            old_student_line = lineFormatStudent(user)
+
+                            user.dropCourse(course)
+                            course.removeStudent(user)
+
+                            new_course_line = lineFormatCourse(course)
+                            new_student_line = lineFormatStudent(user)
+
+                            print("Successfully dropped in " + course.getCourseCode())
+
+                            updateDataInFile("courses.txt", old_course_line, new_course_line)
+                            updateDataInFile("students.txt", old_student_line, new_student_line)
+                            # end of action 2
+                        else:
+                            print("You are not currently enrolled in this course!")
+
 
                 elif action == "3":
                     user.display_info()
