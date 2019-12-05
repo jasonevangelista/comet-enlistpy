@@ -344,7 +344,10 @@ def isStudentInCourse(student, course):
     return studentIsInList
         
 def canStudentEnrollInCourse(student, course):
-    if course.getStudentQuantity == course.getClassLimit:
+    # print(course.getStudentQuantity)
+    # print()
+
+    if course.getStudentQuantity() == course.getClassLimit():
         print("Course is full!")
         return False
 
@@ -376,6 +379,13 @@ def canStudentEnrollInCourse(student, course):
             return False
 
 def updateDataInFile(filename, old_line, new_line):
+    s = open(filename).read()
+    s = s.replace(old_line, new_line)
+    f = open(filename, 'w')
+    f.write(s)
+    f.close()
+
+    print(s)
 
 def lineFormatCourse(course):
     #course code, num units, pre req, class limit, current quantity, student list
@@ -406,14 +416,13 @@ def lineFormatStudent(student):
     return line
 
 
-
 def main():
     run = True
     user = ""
 
-    courses_data = getCourseDataFromFile()
-
     while run == True:
+        courses_data = getCourseDataFromFile()
+
         action = start_menu()
 
         if action == "1" or action == "2":
@@ -455,21 +464,10 @@ def main():
 
                             print("Successfully enrolled in " + course.getCourseCode())
 
-                            # print("old line: ")
-                            # print(old_course_line)
-                            # print(old_student_line)
-
-                            # print()
-
-                            # print("new line: ")
-                            # print(new_course_line)
-                            # print(new_student_line)
-
                             updateDataInFile("courses.txt", old_course_line, new_course_line)
-                            updateDataInFile("students.txt", old_student_line, new_course_line)
+                            updateDataInFile("students.txt", old_student_line, new_student_line)
 
                             #end of action 1
-    
 
                 elif action == "2":
                     course_to_drop = input("Enter Course Code: ")
