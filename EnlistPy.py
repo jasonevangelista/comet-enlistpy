@@ -224,10 +224,36 @@ class Admin(User):
                 break
         
         if course_found:
+            # delete from students the specified course
+            students = getStudentsFromCourse(course)
 
-        #     # delete from students the specified course
+            for student in students:
+                student.dropCourse(course)
 
-        #     # delete course from data
+            # delete course from data
+            line_to_remove = lineFormatCourse(course)
+
+            f = open("courses.txt", "r")
+            lines = f.readlines()
+            f.close()
+
+            f = open("courses.txt", "w")
+            for line in lines:
+                if line.strip("\n") != line_to_remove:
+                    f.write(line)
+            f.close()
+
+            f = open("courses.txt", "r")
+            new_lines = f.readlines()
+            f.close()
+
+            f = open("courses.txt", "w")
+            for line in new_lines:
+                if line == new_lines[-1]:
+                    f.write(new_lines[-1].strip("\n"))
+                else:
+                    f.write(line)
+            f.close()
 
         else:
             print("Course not found!")
@@ -429,6 +455,30 @@ def getCourseDataFromFile():
     f.close()
 
     return courses
+
+def getStudentsFromCourse(course):
+    student_list = course.getStudentList()
+    students = []
+
+    f = open("students.txt", "r")
+    lines = f.readlines()
+    for line in lines:
+        data = line.rsplit(", ")
+
+        for s_id_no in student_list:
+            if s_id_no == data[0]:
+                id_no = data[0]
+                first_name = data[1]
+                last_name = data[2]
+                degree = data[3]
+                prev_courses = data[4].rsplit()
+                current_units = data[5]
+                current_courses = data[6].rsplit()
+
+                students.append(Student(id_no, first_name, last_name, degree, prev_courses, current_units, current_courses))
+    f.close()
+
+    return students
 
 def isStudentInCourse(student, course):
     id_no = student.getIdNo()
