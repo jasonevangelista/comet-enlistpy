@@ -1,2 +1,1 @@
-id_no, first name, last name, degree, courses taken, current units, current courses
-111, jason, ev, cs, class1 class2 , 0, 
+id_no, first name, last name, degree, courses taken, current units, current courses 

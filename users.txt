@@ -1,4 +1,1 @@
-aaaaaa, pass, student
-222, 2, admin
-1232313323321, pass, student
-111, pass, student
+id_no, password, student/admin 
