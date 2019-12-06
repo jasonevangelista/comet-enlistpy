@@ -1,4 +1,5 @@
 from os import system, name 
+import time
 
 MAX_STUDENT_UNITS = 21
 
@@ -48,18 +49,17 @@ class Course():
     def getStudentList(self):
         return self.student_list
 
+    def printCourse(self):
+        if self.course_code != "course code":
+            print("--------------------------------------------------")
+            print("Course Code:\t" + self.course_code)
+            print("Units:\t\t" + self.units)
+            print("Capacity:\t" + self.student_quantity + "/" + self.class_limit)
+            print("Pre reqs:\t| ", end="")
+            for pre_req in self.pre_requisites:
+                print(pre_req + " | ", end="")
+            print("\n--------------------------------------------------")
 
-    #course code, num units, pre req, class limit, current quantity, student list
-
-
-    def displayCourseInfo(self):
-        print(self.course_code)
-        print("Units: " + self.units)
-        print(self.time_start + " - " + self.time_end)
-        print(self.student_quantity + " / " + self.class_limit)
-        print("Pre-requisites:")
-        for course in self.pre_requisites:
-            print(course.getCourseCode)
 
 
 class User():
@@ -112,11 +112,7 @@ class Student(User):
 
             updateDataInFile("courses.txt", old_course_line, new_course_line)
             updateDataInFile("students.txt", old_student_line, new_student_line)
-
-
-
-        # self.current_courses.append(course.getCourseCode())
-        # self.current_units = int(self.current_units) + int(course.getUnits())
+            time.sleep(2)
 
     def dropCourse(self, course):
 
@@ -124,7 +120,6 @@ class Student(User):
             old_course_line = lineFormatCourse(course)
             old_student_line = lineFormatStudent(self)
 
-            # self.dropCourse(course)
             self.current_courses.remove(course.getCourseCode())
             self.current_units = int(self.current_units) - int(course.getUnits())
             course.removeStudent(self)
@@ -136,9 +131,10 @@ class Student(User):
 
             updateDataInFile("courses.txt", old_course_line, new_course_line)
             updateDataInFile("students.txt", old_student_line, new_student_line)
-            # end of action 2
+            time.sleep(2)
         else:
             print("You are not currently enrolled in this course!")
+            time.sleep(2)
 
 
     def getDegree(self):
@@ -183,6 +179,7 @@ class Admin(User):
         
         if course_found:
             print("Cannot add anymore! Course already in list!")
+            time.sleep(2)
 
         else:
             units = input("Units: ")
@@ -210,6 +207,7 @@ class Admin(User):
             f.close()
 
             print("Course successfully added!")
+            time.sleep(2)
 
     def removeCourse(self, courses_data):
 
@@ -255,8 +253,12 @@ class Admin(User):
                     f.write(line)
             f.close()
 
+            print("Course successfully removed!")
+            time.sleep(2)
+
         else:
             print("Course not found!")
+            time.sleep(2)
 
 
 # Methods
@@ -492,19 +494,19 @@ def isStudentInCourse(student, course):
     return studentIsInList
         
 def canStudentEnrollInCourse(student, course):
-    # print(course.getStudentQuantity)
-    # print()
-
     if course.getStudentQuantity() == course.getClassLimit():
         print("Course is full!")
+        time.sleep(2)
         return False
 
     elif isStudentInCourse(student, course):
         print("You are already enrolled here!")
+        time.sleep(2)
         return False
 
     elif student.getCurrentUnits() + course.getUnits() > MAX_STUDENT_UNITS:
         print("Cannot add more units to user!")
+        time.sleep(2)
         return False
 
     else:
@@ -524,6 +526,7 @@ def canStudentEnrollInCourse(student, course):
             return True
         else:
             print("Not enough pre-requisites!")
+            time.sleep(2)
             return False
 
 def updateDataInFile(filename, old_line, new_line):
@@ -583,7 +586,7 @@ def main():
 
         action = start_menu()
 
-        # clear()
+        clear()
 
         if action == "1" or action == "2":
             if action == "1":
@@ -591,57 +594,85 @@ def main():
             else:
                 user = sign_up()
             
+            clear()
+            
             print("\nHello, " + user.getFirstName() + ".\nWhat would you like to do?\n")
 
             if type(user) is Student:
-                print("1 - Add Course")
-                print("2 - Drop Course")
-                print("3 - View Student Information")
-                print("4 - Log Out")
-                action = input("Enter Input: ")
+                while action != "4":
+                    print("1 - Add Course")
+                    print("2 - Drop Course")
+                    print("3 - View Student Information")
+                    print("4 - Log Out")
+                    action = input("Enter Input: ")
+                    clear()
 
-                if action == "1" or action == "2":
-                    course_input = input("Enter Course Code: ")
+                    if action == "1" or action == "2":
+                        for course_to_display in courses_data:
+                            course_to_display.printCourse()
 
-                    course_found = False
-                    for course in courses_data:
-                        if course.getCourseCode() == course_input:
-                            course_found = True
-                            break
-                    
-                    if course_found == False:
-                        print("Course not found!")
-                    
+                        course_input = input("Enter Course Code: ")
+
+                        course_found = False
+                        for course in courses_data:
+                            if course.getCourseCode() == course_input:
+                                course_found = True
+                                break
+                        
+                        if course_found == False:
+                            print("Course not found!")
+                        
+                        else:
+                            if action == "1":
+                                user.takeCourse(course)
+
+                            elif action == "2":
+                                user.dropCourse(course)
+
+                    elif action == "3":
+                        user.display_info()
+                        input("Press Enter to Continue\n")
+
+                    elif action == "4":
+                        # clear()
+                        continue
                     else:
-                        if action == "1":
-                            user.takeCourse(course)
+                        print("Invalid input!\n")
 
-                        elif action == "2":
-                            user.dropCourse(course)
-
-                elif action == "3":
-                    user.display_info()
-
-                else:
-                    print("Invalid input!")
+                    clear()    
 
             elif type(user) is Admin:
-                print("1 - Create Course")
-                print("2 - Remove Course")
-                print("3 - Log Out")
-                action = input("Enter Input: ")
+                while action != "4":
+                    print("1 - Create Course")
+                    print("2 - Remove Course")
+                    print("3 - View All Courses")
+                    print("4 - Log Out")
+                    action = input("Enter Input: ")
+                    clear()
 
-                if action == "1":
-                    user.createCourse(courses_data)
+                    if action == "1":
+                        user.createCourse(courses_data)
 
-                elif action == "2":
-                    user.removeCourse(courses_data)
+                    elif action == "2":
+                        for course_to_display in courses_data:
+                            course_to_display.printCourse()
 
-                # elif action == "3":
+                        user.removeCourse(courses_data)
 
-                # else:
+                    elif action == "3":
+                        for course_to_display in courses_data:
+                            course_to_display.printCourse()
+                        input("Press Enter to return to menu ")
 
+                    elif action == "4":
+                        continue
+                    else:
+                        print("Invalid input!\n")
+
+                    clear()
         else:
             run = False
+            print("Program closing...")
+            time.sleep(1)
     
 main()
