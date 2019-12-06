@@ -3,8 +3,10 @@ import time
 
 MAX_STUDENT_UNITS = 21
 
-# Classes
+# =============================== CLASSES ===============================
 
+# a Course object that contains attributes such as course code, units, class limit,
+# current student quantity, list of enrolled students, and pre requisites of the course
 class Course():
     course_code = ""
     units = ""
@@ -15,6 +17,8 @@ class Course():
 
     pre_requisites = []
 
+    # initialize Course object with parameters: course code, class limit, units,
+    # pre requisites, current quantity of students, and list of students
     def __init__(self, course_code, class_limit, units, pre_requisites, student_quantity, student_list):
         self.course_code = course_code
         self.class_limit = class_limit
@@ -23,32 +27,41 @@ class Course():
         self.student_quantity = student_quantity
         self.student_list = student_list
 
+    # add student in student list
     def addStudent(self, student):
         self.student_quantity = int(self.student_quantity) + 1
         self.student_list.append(student.getIdNo())
 
+    # remove student in student list 
     def removeStudent(self, student):
         self.student_quantity = int(self.student_quantity) - 1
         self.student_list.remove(student.getIdNo())
     
+    # returns course code
     def getCourseCode(self):
         return self.course_code
 
+    # returns course units
     def getUnits(self):
         return int(self.units)
 
+    # returns list of pre requisities
     def getPreReqs(self):
         return self.pre_requisites
 
+    # returns class limit
     def getClassLimit(self):
         return int(self.class_limit)
 
+    # returns current quantity of students enrolled
     def getStudentQuantity(self):
         return int(self.student_quantity)
 
+    # returns list of enrolled students
     def getStudentList(self):
         return self.student_list
 
+    # prints course information
     def printCourse(self):
         if self.course_code != "course code":
             print("--------------------------------------------------")
@@ -61,33 +74,43 @@ class Course():
             print("\n--------------------------------------------------")
 
 
-
+# a User object that contains a first name, last name, and id number
 class User():
     first_name = ""
     last_name = ""
     id_no = ""
     
+    # initialize a User object with parameters: id number, first name, and
+    # last name
     def __init__(self, id_no, first_name, last_name):
         self.first_name = first_name
         self.last_name = last_name
         self.id_no = id_no
 
+    # returns first name
     def getFirstName(self):
         return self.first_name
     
+    # returns last name
     def getLastName(self):
         return self.last_name
     
+    # returns id number
     def getIdNo(self):
         return self.id_no
 
 
+# a Student object that inherits the User class and contains attributes such as
+# a degree, current total units, current courses taking up, and previous
+# courses taken
 class Student(User):
     degree = ""
     current_units = ""
     current_courses = []
     courses_taken = []
 
+    # initialize a Student object with parameters: id number, first name, last name,
+    # degree, previous courses taken, current units, and current courses taking up
     def __init__(self, id_no, first_name, last_name, degree, courses_taken, current_units, current_courses):
         super(Student, self).__init__(id_no, first_name, last_name)
         self.degree = degree
@@ -95,6 +118,7 @@ class Student(User):
         self.current_units = int(current_units)
         self.current_courses = current_courses
 
+    # adds a course to current courses of student if possible
     def takeCourse(self, course):
         if canStudentEnrollInCourse(self, course):
             old_course_line = lineFormatCourse(course)
@@ -114,8 +138,8 @@ class Student(User):
             updateDataInFile("students.txt", old_student_line, new_student_line)
             time.sleep(2)
 
+    # drops a course from current courses of student if possible
     def dropCourse(self, course):
-
         if isStudentInCourse(self, course) == True:
             old_course_line = lineFormatCourse(course)
             old_student_line = lineFormatStudent(self)
@@ -136,21 +160,25 @@ class Student(User):
             print("You are not currently enrolled in this course!")
             time.sleep(2)
 
-
+    # returns the student's degree
     def getDegree(self):
         return self.degree
 
+    # returns the previous courses taken
     def getPrevCoursesTaken(self):
         return self.courses_taken
 
+    # returns the current units
     def getCurrentUnits(self):
         return int(self.current_units)
 
+    # returns the current courses being taken
     def getCurrentCourses(self):
         return self.current_courses
 
-
+    # displays student information
     def display_info(self):
+        clear()
         print("Full Name: " + self.first_name + " " + self.last_name)
         print("ID Number: " + self.id_no)
         print("Degree: " + self.degree)
@@ -159,13 +187,18 @@ class Student(User):
         print("Current Courses:")
         for course in self.current_courses:
             print(course)
+        print()
+        input("Press Enter to return to menu ")
 
 
+# an Admin object that inherits the User class
 class Admin(User):
 
+    # initialize Admin object with parameters: id number, first name, and last name
     def __init__(self, id_no, first_name, last_name):
         super(Admin, self).__init__(id_no, first_name, last_name)
 
+    # creates a new course if course has not yet been created
     def createCourse(self, courses_data):
         new_course = ""
 
@@ -194,12 +227,9 @@ class Admin(User):
                     pre_reqs.append(courseInput)
 
             class_limit = input("Class Limit: ")
-
             student_quantity = "0"
-
             student_list = []
 
-            # course_code, class_limit, units, pre_requisites, student_quantity, student_list
             new_course = Course(course_code, class_limit, units, pre_reqs, student_quantity, student_list)
 
             f = open("courses.txt","a+")
@@ -209,6 +239,7 @@ class Admin(User):
             print("Course successfully added!")
             time.sleep(2)
 
+    # removes course from data set if it exists
     def removeCourse(self, courses_data):
 
         course_to_remove = ""
@@ -261,8 +292,9 @@ class Admin(User):
             time.sleep(2)
 
 
-# Methods
+# =============================== METHODS ===============================
 
+# displays start menu and gets input for specific action
 def start_menu():
     print("\n=========================")
     print("Welcome to DLSU EnlistPy!")
@@ -282,6 +314,8 @@ def start_menu():
 
     return action
 
+
+# displays log in menu and gets id number and password input
 def log_in():
     user = ""
     f = open("users.txt","r")
@@ -315,7 +349,6 @@ def log_in():
             correct_password = True
             print("Successfully logged in!")
 
-    # print("|" + lines[2] + "|")
     if lines[2].strip('\n') == "student":
         f = open("students.txt","r")
         f1 = f.readlines()
@@ -350,6 +383,8 @@ def log_in():
 
     return user
 
+
+# displays sign up menu for registering new accounts for student and admin
 def sign_up():
     user = ""
 
@@ -403,7 +438,6 @@ def sign_up():
             if courseInput != "None":
                 prev_courses.append(courseInput)
 
-        # id_no, first name, last name, degree, courses taken, current units, current courses
         f = open("students.txt","a+")
 
         f.write("\n" + id_no + ", " + first_name + ", " + last_name + ", " + degree + ", ")
@@ -413,19 +447,15 @@ def sign_up():
 
         f.close()
 
-        # id_no, first name, last name, degree, courses taken, current units, current courses
         user = Student(id_no, first_name, last_name, degree, prev_courses, "0", [])
 
     else:
         f = open("admins.txt","a+")
-
         f.write("\n" + id_no + ", " + first_name + ", " + last_name)
-    
         f.close()
 
         user = Admin(id_no, first_name, last_name)
     
-    # add user data to user
     f = open("users.txt","a+")
     f.write("\n" + id_no + ", " + password + ", ")
     if user_type == "1":
@@ -436,15 +466,15 @@ def sign_up():
 
     return user
 
+
+# gets course data from text file "courses.txt" and places it in a Course object list
 def getCourseDataFromFile():
     f = open("courses.txt","r")
-
     f1 = f.readlines()
     courses = []
 
     for line in f1:
         data = line.rsplit(", ")
-
         course_code = data[0]
         units = data[1]
         pre_reqs = data[2].rsplit()
@@ -458,6 +488,9 @@ def getCourseDataFromFile():
 
     return courses
 
+
+# gets student data from text file "students.txt" that are enrolled in a 
+# specified course and places them in a Student object list
 def getStudentsFromCourse(course):
     student_list = course.getStudentList()
     students = []
@@ -482,6 +515,8 @@ def getStudentsFromCourse(course):
 
     return students
 
+
+# checks if a specified student is currently enrolled in a specified course
 def isStudentInCourse(student, course):
     id_no = student.getIdNo()
     student_list = course.getStudentList()
@@ -492,7 +527,9 @@ def isStudentInCourse(student, course):
             studentIsInList = True
     
     return studentIsInList
-        
+
+
+# checks if a specified student can currently enroll in a specified course
 def canStudentEnrollInCourse(student, course):
     if course.getStudentQuantity() == course.getClassLimit():
         print("Course is full!")
@@ -529,6 +566,8 @@ def canStudentEnrollInCourse(student, course):
             time.sleep(2)
             return False
 
+
+# updates a specific line of text in text file
 def updateDataInFile(filename, old_line, new_line):
     s = open(filename).read()
     s = s.replace(old_line, new_line)
@@ -536,10 +575,9 @@ def updateDataInFile(filename, old_line, new_line):
     f.write(s)
     f.close()
 
-    # print(s)
 
+# converts course data into a string to save in text file
 def lineFormatCourse(course):
-    #course code, num units, pre req, class limit, current quantity, student list
     line = course.getCourseCode() + ", " + str(course.getUnits()) + ", "
 
     for pre_req in course.getPreReqs():
@@ -552,6 +590,8 @@ def lineFormatCourse(course):
 
     return line
 
+
+# converts student data into a string to save in text file
 def lineFormatStudent(student):
     # id_no, first name, last name, degree, prev courses taken, current units, current courses
     line = student.getIdNo() + ", " + student.getFirstName() + ", " + student.getLastName() + ", " + student.getDegree() + ", "
@@ -566,24 +606,25 @@ def lineFormatStudent(student):
     
     return line
 
+
+# clears the screen
 def clear(): 
-  
     # for windows 
     if name == 'nt': 
         _ = system('cls') 
-  
     # for mac and linux(here, os.name is 'posix') 
     else: 
         _ = system('clear') 
 
-# Main Method
+
+# =============================== MAIN METHOD ===============================
+
 def main():
     run = True
     user = ""
 
     while run == True:
         courses_data = getCourseDataFromFile()
-
         action = start_menu()
 
         clear()
@@ -634,7 +675,6 @@ def main():
                         input("Press Enter to Continue\n")
 
                     elif action == "4":
-                        # clear()
                         continue
                     else:
                         print("Invalid input!\n")
